@@ -1,0 +1,3 @@
+# GitHub rejects files larger than 100 MB.
+# Keep oversized source videos locally, then upload compressed versions.
+/assets/portfolio/demo_1.mp4

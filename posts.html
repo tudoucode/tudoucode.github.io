@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="博客文章归档，记录技术、项目复盘、阅读和长期思考。">
+    <meta name="theme-color" content="#336b63">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="全部文章">
+    <meta property="og:description" content="博客文章归档。">
+    <title>全部文章</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="回到首页">
+        <span class="brand-mark" data-site-initial>N</span>
+        <span class="brand-text" data-site-name>Notes</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="posts.html">文章</a>
+        <a href="portfolio.html">作品</a>
+        <a href="index.html#topics">专题</a>
+        <a href="index.html#about">关于</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="切换颜色主题" title="切换颜色主题">
+        <span class="sun-icon" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="page-hero" aria-labelledby="posts-page-title">
+        <p class="eyebrow">Writing Archive</p>
+        <h1 id="posts-page-title">全部文章</h1>
+        <p>这里集中放置博客文章、技术笔记、项目复盘、阅读摘录和阶段性思考。</p>
+      </section>
+
+      <section class="section posts-page-section" aria-label="全部文章列表">
+        <div class="post-grid post-grid-wide" data-posts data-post-limit="all"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> <span data-footer-name>Notes</span>. Static personal site.</p>
+      <a href="index.html">回到首页</a>
+    </footer>
+
+    <script src="site.config.js"></script>
+    <script src="portfolio.auto.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
