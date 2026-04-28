@@ -12,6 +12,26 @@ const portfolioItems = [
 let activePortfolioFilter = "all";
 let activePostCategory = "all";
 
+const labels = {
+  noPosts: "\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u6587\u7ae0\u3002",
+  read: "\u9605\u8bfb",
+  article: "\u6587\u7ae0",
+  articleCover: "\u6587\u7ae0\u5c01\u9762",
+  all: "\u5168\u90e8",
+  videoCover: "AI \u89c6\u9891\u5c01\u9762",
+  aiWork: "AI \u4f5c\u54c1",
+  preview: "\u9884\u89c8",
+  clickPreview: "\u70b9\u51fb\u9884\u89c8",
+  untitledWork: "\u672a\u547d\u540d\u4f5c\u54c1",
+  pendingDescription: "\u540e\u7eed\u8865\u5145\u521b\u4f5c\u8bf4\u660e\u3002",
+  unsupportedVideo: "\u5f53\u524d\u6d4f\u89c8\u5668\u4e0d\u652f\u6301\u89c6\u9891\u64ad\u653e\u3002",
+  closePreview: "\u5173\u95ed\u9884\u89c8",
+  closeSymbol: "\u00d7",
+  copied: "\u5df2\u590d\u5236",
+  copy: "\u590d\u5236",
+  copyFailed: "\u590d\u5236\u5931\u8d25"
+};
+
 if (savedTheme) {
   root.dataset.theme = savedTheme;
 }
@@ -110,18 +130,18 @@ const renderPosts = () => {
   }
 
   if (!posts.length) {
-    container.innerHTML = '<p class="empty-state">没有找到匹配的文章。</p>';
+    container.innerHTML = `<p class="empty-state">${labels.noPosts}</p>`;
     return;
   }
 
   container.innerHTML = posts.map((post, index) => `
     <article class="post-card ${index === 0 ? "featured" : ""}">
       ${post.cover
-        ? `<a class="post-media post-cover" href="${escapeAttr(post.url || "#")}" aria-label="阅读 ${escapeAttr(post.title || "文章")}"><img src="${escapeAttr(post.cover)}" alt="${escapeAttr(post.title || "文章封面")}" loading="lazy"></a>`
+        ? `<a class="post-media post-cover" href="${escapeAttr(post.url || "#")}" aria-label="${labels.read} ${escapeAttr(post.title || labels.article)}"><img src="${escapeAttr(post.cover)}" alt="${escapeAttr(post.title || labels.articleCover)}" loading="lazy"></a>`
         : `<div class="post-media ${escapeAttr(post.mediaClass || "media-code")}" aria-hidden="true"></div>`}
       <div class="post-body">
         <div class="meta">
-          <span>${escapeHtml(post.category || "文章")}</span>
+          <span>${escapeHtml(post.category || labels.article)}</span>
           <time datetime="${escapeAttr(post.date || "")}">${formatDate(post.date)}</time>
         </div>
         <h3><a href="${escapeAttr(post.url || "#")}">${escapeHtml(post.title || "")}</a></h3>
@@ -137,7 +157,7 @@ const renderPostTools = () => {
 
   const categories = [...new Set(getTopicPosts().map((post) => post.category).filter(Boolean))];
   const buttons = [
-    { label: "全部", value: "all" },
+    { label: labels.all, value: "all" },
     ...categories.map((category) => ({ label: category, value: category }))
   ];
 
@@ -203,12 +223,12 @@ const renderPortfolioMedia = (item, index) => {
     }
 
     return `
-      <img class="portfolio-media" src="${escapeAttr(item.poster)}" alt="${escapeAttr(item.title || "AI 视频封面")}" loading="lazy">
+      <img class="portfolio-media" src="${escapeAttr(item.poster)}" alt="${escapeAttr(item.title || labels.videoCover)}" loading="lazy">
       <span class="video-badge" aria-hidden="true"></span>
     `;
   }
 
-  return `<img class="portfolio-media" src="${escapeAttr(item.thumbnail || item.src)}" alt="${escapeAttr(item.alt || item.title || "AI 作品")}" loading="lazy">`;
+  return `<img class="portfolio-media" src="${escapeAttr(item.thumbnail || item.src)}" alt="${escapeAttr(item.alt || item.title || labels.aiWork)}" loading="lazy">`;
 };
 
 const getVisiblePortfolioItems = (container) => {
@@ -231,17 +251,17 @@ const renderPortfolio = () => {
 
   container.innerHTML = items.map((item, index) => `
     <article class="portfolio-card ${isHomeGrid ? "portfolio-card-visual" : ""}">
-      <button class="portfolio-frame" type="button" ${item.src ? "" : "disabled"} data-portfolio-index="${index}" aria-label="预览 ${escapeAttr(item.title || "AI 作品")}">
+      <button class="portfolio-frame" type="button" ${item.src ? "" : "disabled"} data-portfolio-index="${index}" aria-label="${labels.preview} ${escapeAttr(item.title || labels.aiWork)}">
         ${renderPortfolioMedia(item, index)}
-        ${item.src && !isHomeGrid ? '<span class="portfolio-open">点击预览</span>' : ""}
+        ${item.src && !isHomeGrid ? `<span class="portfolio-open">${labels.clickPreview}</span>` : ""}
       </button>
       ${isHomeGrid ? "" : `<div class="portfolio-body">
         <div class="portfolio-meta">
           <span>${escapeHtml(item.category || (item.type === "video" ? "AI Video" : "AI Image"))}</span>
           <span>${escapeHtml(item.year || "")}</span>
         </div>
-        <h3>${escapeHtml(item.title || "未命名作品")}</h3>
-        <p>${escapeHtml(item.description || "后续补充创作说明。")}</p>
+        <h3>${escapeHtml(item.title || labels.untitledWork)}</h3>
+        <p>${escapeHtml(item.description || labels.pendingDescription)}</p>
       </div>`}
     </article>
   `).join("");
@@ -300,9 +320,7 @@ const layoutPortfolioGrid = (container = document.querySelector("[data-portfolio
   });
 
   const contentHeight = Math.max(0, ...columnHeights) - gap;
-  const visibleHeight = contentHeight;
-
-  container.style.height = `${Math.max(0, visibleHeight)}px`;
+  container.style.height = `${Math.max(0, contentHeight)}px`;
   container.classList.remove("is-clipped");
 };
 
@@ -325,19 +343,19 @@ const openPortfolioViewer = (item) => {
     ? `
       <video class="viewer-media" controls autoplay ${item.poster ? `poster="${escapeAttr(item.poster)}"` : ""}>
         <source src="${escapeAttr(item.src)}">
-        当前浏览器不支持视频播放。
+        ${labels.unsupportedVideo}
       </video>
     `
-    : `<img class="viewer-media" src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || item.title || "AI 作品")}">`;
+    : `<img class="viewer-media" src="${escapeAttr(item.src)}" alt="${escapeAttr(item.alt || item.title || labels.aiWork)}">`;
 
   const viewer = document.createElement("div");
   viewer.className = "portfolio-viewer";
   viewer.setAttribute("role", "dialog");
   viewer.setAttribute("aria-modal", "true");
   viewer.innerHTML = `
-    <button class="viewer-backdrop" type="button" aria-label="关闭预览"></button>
+    <button class="viewer-backdrop" type="button" aria-label="${labels.closePreview}"></button>
     <figure class="viewer-panel">
-      <button class="viewer-close" type="button" aria-label="关闭预览">×</button>
+      <button class="viewer-close" type="button" aria-label="${labels.closePreview}">${labels.closeSymbol}</button>
       <div class="viewer-stage">${media}</div>
       <figcaption class="viewer-caption">
         <span>${escapeHtml(item.category || "")}${item.year ? ` / ${escapeHtml(item.year)}` : ""}</span>
@@ -408,14 +426,14 @@ document.addEventListener("click", async (event) => {
 
   try {
     await navigator.clipboard.writeText(code);
-    copyButton.textContent = "已复制";
+    copyButton.textContent = labels.copied;
     window.setTimeout(() => {
-      copyButton.textContent = "复制";
+      copyButton.textContent = labels.copy;
     }, 1400);
   } catch {
-    copyButton.textContent = "复制失败";
+    copyButton.textContent = labels.copyFailed;
     window.setTimeout(() => {
-      copyButton.textContent = "复制";
+      copyButton.textContent = labels.copy;
     }, 1400);
   }
 });

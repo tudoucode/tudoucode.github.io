@@ -77,8 +77,16 @@ $textFiles = $deployFiles | Where-Object { $_ -match "\.(html|js|css|md)$" -and 
 $badTextPatterns = @(
   "\?\?\?",
   "\uFFFD",
-  "Ã",
-  "Â"
+  "\u00c3",
+  "\u00c2",
+  "\u5a0c",
+  "\u93c2",
+  "\u95c3",
+  "\u934f",
+  "\u68f0",
+  "\u6fb6",
+  "\u8113",
+  "\u951f"
 )
 
 foreach ($file in $textFiles) {
