@@ -1,3 +1,8 @@
 # GitHub rejects files larger than 100 MB.
 # Keep oversized source videos locally, then upload compressed versions.
 /assets/portfolio/demo_1.mp4
+node_modules/
+dist/
+.astro/
+public/
+astro-dev.*.log

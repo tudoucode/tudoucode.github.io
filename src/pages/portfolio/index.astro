@@ -1,0 +1,24 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PortfolioGrid from "@/components/PortfolioGrid.astro";
+import { portfolioItems, siteConfig } from "@/data/site";
+---
+
+<BaseLayout title={siteConfig.pages.portfolio.title} description={siteConfig.pages.portfolio.description} activePage="portfolio" canonicalPath="/portfolio/">
+  <main>
+    <section class="page-hero">
+      <p class="section-kicker">AI Portfolio</p>
+      <h1>AI 作品集</h1>
+      <p>{siteConfig.pages.portfolio.description}</p>
+    </section>
+
+    <section class="section portfolio-page-section">
+      <div class="portfolio-filters">
+        <button class="filter-button active" type="button" data-portfolio-filter="all">全部</button>
+        <button class="filter-button" type="button" data-portfolio-filter="image">图片</button>
+        <button class="filter-button" type="button" data-portfolio-filter="video">视频</button>
+      </div>
+      <PortfolioGrid items={portfolioItems} />
+    </section>
+  </main>
+</BaseLayout>

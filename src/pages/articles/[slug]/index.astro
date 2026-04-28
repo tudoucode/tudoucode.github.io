@@ -1,0 +1,55 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getReadingTime, articleModules } from "@/utils/posts";
+
+export function getStaticPaths() {
+  return articleModules.map((article) => ({
+    params: { slug: article.slug },
+    props: { article }
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = article.module;
+const toc = article.headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const readingTime = getReadingTime(article.content);
+---
+
+<BaseLayout
+  title={`${article.title} - TudouCode`}
+  description={article.summary}
+  activePage="posts"
+  canonicalPath={`/articles/${article.slug}/`}
+  image={article.cover}
+  type="article"
+>
+  <main class:list={["article-shell", { "article-shell-no-toc": toc.length === 0 }]}>
+    {toc.length ? (
+      <aside class="article-toc" aria-label="文章目录">
+        <strong>目录</strong>
+        {toc.map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
+      </aside>
+    ) : null}
+    <article class="article">
+      <header class="article-header">
+        <a class="article-back" href="/posts/">返回文章</a>
+        <div class="meta">
+          <span>{article.category}</span>
+          <time datetime={article.date}>{article.date.replaceAll("-", ".")}</time>
+          <span>{readingTime} 分钟阅读</span>
+        </div>
+        <h1>{article.title}</h1>
+        <p>{article.summary}</p>
+        {article.cover ? (
+          <figure class="article-cover">
+            <img src={article.cover} alt={article.title} />
+          </figure>
+        ) : null}
+        <a class="article-source" href={article.sourceUrl}>查看 Markdown 源文</a>
+      </header>
+      <div class="article-body">
+        <Content />
+      </div>
+    </article>
+  </main>
+</BaseLayout>

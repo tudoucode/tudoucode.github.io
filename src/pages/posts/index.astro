@@ -1,0 +1,42 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { siteConfig } from "@/data/site";
+import { getTopicPosts } from "@/utils/posts";
+
+const topicKey = Astro.url.searchParams.get("topic") || undefined;
+const activeTopic = siteConfig.topics.find((topic) => topic.key === topicKey);
+const visiblePosts = getTopicPosts(topicKey);
+const categories = [...new Set(visiblePosts.map((post) => post.category).filter(Boolean))];
+const title = activeTopic ? `${activeTopic.title} - TudouCode` : siteConfig.pages.posts.title;
+const description = activeTopic?.description || siteConfig.pages.posts.description;
+---
+
+<BaseLayout title={title} description={description} activePage="posts" canonicalPath={activeTopic ? `/posts/?topic=${activeTopic.key}` : "/posts/"}>
+  <main>
+    <section class="page-hero">
+      <p class="section-kicker">Articles</p>
+      <h1 data-posts-title>{activeTopic?.title || "全部文章"}</h1>
+      <p data-posts-description>{description}</p>
+    </section>
+
+    <section class="section posts-page-section">
+      <div class="archive-tools">
+        <label class="archive-search">
+          <span>搜索文章</span>
+          <input type="search" data-post-search placeholder="输入标题、摘要或正文关键词" />
+        </label>
+        <div class="archive-filters" data-post-categories>
+          <button class="filter-button active" type="button" data-post-category="all">全部</button>
+          {categories.map((category) => (
+            <button class="filter-button" type="button" data-post-category={category}>{category}</button>
+          ))}
+        </div>
+      </div>
+      <div class="post-grid post-grid-wide" data-posts>
+        {visiblePosts.map((post, index) => <PostCard post={post} featured={index === 0} />)}
+        <p class="empty-state" data-empty-posts hidden>没有找到匹配的文章。</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

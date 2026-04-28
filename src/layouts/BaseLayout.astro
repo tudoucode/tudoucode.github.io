@@ -1,0 +1,61 @@
+---
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getAbsoluteUrl, siteConfig } from "@/data/site";
+import "@/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  activePage?: string;
+  canonicalPath?: string;
+  image?: string;
+  type?: "website" | "article";
+};
+
+const {
+  title = siteConfig.siteName,
+  description = siteConfig.description,
+  activePage = "home",
+  canonicalPath = Astro.url.pathname,
+  image = siteConfig.defaultOgImage,
+  type = "website"
+} = Astro.props;
+
+const canonicalUrl = getAbsoluteUrl(canonicalPath);
+const ogImage = getAbsoluteUrl(image);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#336b63" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteConfig.siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <title>{title}</title>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": type === "article" ? "BlogPosting" : "WebSite",
+      name: title,
+      headline: title,
+      url: canonicalUrl,
+      description,
+      image: ogImage
+    })} />
+    <link rel="icon" href={`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23336b63'/%3E%3Ctext x='32' y='40' font-size='24' text-anchor='middle' fill='%23fffaf1' font-family='Arial'%3E${siteConfig.siteInitial}%3C/text%3E%3C/svg%3E`} />
+  </head>
+  <body data-page={activePage}>
+    <Header activePage={activePage} />
+    <slot />
+    <Footer />
+    <script src="../scripts/site.ts"></script>
+  </body>
+</html>

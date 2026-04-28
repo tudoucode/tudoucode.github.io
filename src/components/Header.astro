@@ -1,0 +1,28 @@
+---
+import { siteConfig } from "@/data/site";
+
+const navItems = [
+  { href: "/", label: "首页", page: "home" },
+  { href: "/posts/", label: "文章", page: "posts" },
+  { href: "/portfolio/", label: "作品", page: "portfolio" },
+  { href: "/#topics", label: "专题", page: "topics" },
+  { href: "/#about", label: "关于", page: "about" }
+];
+
+const { activePage = "home" } = Astro.props;
+---
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="回到首页">
+    <span class="brand-mark">{siteConfig.siteInitial}</span>
+    <span class="brand-text">{siteConfig.siteName}</span>
+  </a>
+  <nav class="site-nav" aria-label="主导航">
+    {navItems.slice(1).map((item) => (
+      <a href={item.href} aria-current={activePage === item.page ? "page" : undefined}>{item.label}</a>
+    ))}
+  </nav>
+  <button class="theme-toggle" type="button" aria-label="切换颜色主题" title="切换颜色主题">
+    <span class="sun-icon" aria-hidden="true"></span>
+  </button>
+</header>

@@ -1,0 +1,59 @@
+---
+import type { PortfolioItem } from "@/data/site";
+
+const {
+  items,
+  home = false
+} = Astro.props as { items: PortfolioItem[]; home?: boolean };
+---
+
+<div class:list={["portfolio-grid", { "portfolio-grid-home": home }]} data-portfolio>
+  {items.map((item, index) => (
+    <article
+      class:list={["portfolio-card", { "portfolio-card-visual": home }]}
+      data-portfolio-card
+      data-type={item.type}
+    >
+      <button
+        class="portfolio-frame"
+        type="button"
+        disabled={!item.src}
+        data-portfolio-index={index}
+        data-title={item.title}
+        data-category={item.category || ""}
+        data-year={item.year || ""}
+        data-description={item.description || ""}
+        data-src={item.src || ""}
+        data-poster={item.poster || ""}
+        data-media-type={item.type}
+        aria-label={`预览 ${item.title || "AI 作品"}`}
+      >
+        {item.type === "video" ? (
+          item.poster ? (
+            <>
+              <img class="portfolio-media" src={`/${item.poster}`} alt={item.title || "AI 视频封面"} loading="lazy" />
+              <span class="video-badge" aria-hidden="true"></span>
+            </>
+          ) : (
+            <div class={`portfolio-placeholder placeholder-${(index % 4) + 1}`} aria-hidden="true"><span>VIDEO</span></div>
+          )
+        ) : item.src ? (
+          <img class="portfolio-media" src={`/${item.thumbnail || item.src}`} alt={item.alt || item.title || "AI 作品"} loading="lazy" />
+        ) : (
+          <div class={`portfolio-placeholder placeholder-${(index % 4) + 1}`} aria-hidden="true"><span>IMAGE</span></div>
+        )}
+        {item.src && !home ? <span class="portfolio-open">点击预览</span> : null}
+      </button>
+      {!home ? (
+        <div class="portfolio-body">
+          <div class="portfolio-meta">
+            <span>{item.category || (item.type === "video" ? "AI Video" : "AI Image")}</span>
+            <span>{item.year}</span>
+          </div>
+          <h3>{item.title || "未命名作品"}</h3>
+          <p>{item.description || "后续补充创作说明。"}</p>
+        </div>
+      ) : null}
+    </article>
+  ))}
+</div>
