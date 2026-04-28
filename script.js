@@ -2,10 +2,15 @@ const root = document.documentElement;
 const themeButton = document.querySelector(".theme-toggle");
 const savedTheme = localStorage.getItem("theme");
 const config = window.siteConfig || {};
-const portfolioItems = Array.isArray(window.autoPortfolio) && window.autoPortfolio.length > 0
-  ? window.autoPortfolio
-  : config.portfolio;
+const manualPortfolio = Array.isArray(config.portfolio) ? config.portfolio : [];
+const autoPortfolio = Array.isArray(window.autoPortfolio) ? window.autoPortfolio : [];
+const manualBySrc = new Map(manualPortfolio.filter((item) => item.src).map((item) => [item.src, item]));
+const portfolioItems = [
+  ...manualPortfolio,
+  ...autoPortfolio.filter((item) => item.src && !manualBySrc.has(item.src))
+];
 let activePortfolioFilter = "all";
+let activePostCategory = "all";
 
 if (savedTheme) {
   root.dataset.theme = savedTheme;
@@ -16,6 +21,15 @@ themeButton?.addEventListener("click", () => {
   root.dataset.theme = nextTheme;
   localStorage.setItem("theme", nextTheme);
 });
+
+const escapeHtml = (value = "") => String(value)
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#039;");
+
+const escapeAttr = escapeHtml;
 
 const setText = (selector, value) => {
   const element = document.querySelector(selector);
@@ -29,15 +43,42 @@ const formatDate = (value) => {
   return value.replaceAll("-", ".");
 };
 
+const getActiveTopic = () => {
+  const topicKey = new URLSearchParams(window.location.search).get("topic");
+  if (!topicKey || !Array.isArray(config.topics)) return null;
+  return config.topics.find((topic) => topic.key === topicKey || topic.url?.includes(`topic=${topicKey}`)) || null;
+};
+
+const getTopicPosts = () => {
+  if (!Array.isArray(config.posts)) return [];
+  const activeTopic = getActiveTopic();
+  const allowedCategories = activeTopic?.categories || [];
+  return allowedCategories.length
+    ? config.posts.filter((post) => allowedCategories.includes(post.category))
+    : config.posts;
+};
+
+const searchIndexByUrl = new Map(
+  (Array.isArray(window.searchIndex) ? window.searchIndex : [])
+    .filter((item) => item.url)
+    .map((item) => [item.url, item])
+);
+
 const updateMeta = () => {
-  if (config.siteName) {
-    document.title = config.siteName;
-    document.querySelector('meta[property="og:title"]')?.setAttribute("content", config.siteName);
+  const pageKey = document.body.dataset.page || "home";
+  const page = config.pages?.[pageKey] || {};
+  const activeTopic = pageKey === "posts" ? getActiveTopic() : null;
+  const title = activeTopic ? `${activeTopic.title} - TudouCode` : page.title || config.siteName;
+  const description = activeTopic?.description || page.description || config.description;
+
+  if (title) {
+    document.title = title;
+    document.querySelector('meta[property="og:title"]')?.setAttribute("content", title);
   }
 
-  if (config.description) {
-    document.querySelector('meta[name="description"]')?.setAttribute("content", config.description);
-    document.querySelector('meta[property="og:description"]')?.setAttribute("content", config.description);
+  if (description) {
+    document.querySelector('meta[name="description"]')?.setAttribute("content", description);
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
   }
 };
 
@@ -45,20 +86,69 @@ const renderPosts = () => {
   const container = document.querySelector("[data-posts]");
   if (!container || !Array.isArray(config.posts)) return;
   const limit = container.dataset.postLimit;
-  const posts = limit === "all" ? config.posts : config.posts.slice(0, 3);
+  const activeTopic = getActiveTopic();
+  const query = document.querySelector("[data-post-search]")?.value.trim().toLowerCase() || "";
+  const sourcePosts = getTopicPosts();
+  const filteredPosts = sourcePosts.filter((post) => {
+    const matchesCategory = activePostCategory === "all" || post.category === activePostCategory;
+    const indexItem = searchIndexByUrl.get(post.url) || {};
+    const searchable = [
+      post.title,
+      post.category,
+      post.summary,
+      post.date,
+      indexItem.content
+    ].filter(Boolean).join(" ").toLowerCase();
+    const matchesQuery = !query || searchable.includes(query);
+    return matchesCategory && matchesQuery;
+  });
+  const posts = limit === "all" ? filteredPosts : filteredPosts.slice(0, 3);
+
+  if (activeTopic) {
+    setText("[data-posts-title]", activeTopic.title);
+    setText("[data-posts-description]", activeTopic.description);
+  }
+
+  if (!posts.length) {
+    container.innerHTML = '<p class="empty-state">没有找到匹配的文章。</p>';
+    return;
+  }
 
   container.innerHTML = posts.map((post, index) => `
     <article class="post-card ${index === 0 ? "featured" : ""}">
-      <div class="post-media ${post.mediaClass || "media-code"}" aria-hidden="true"></div>
+      ${post.cover
+        ? `<a class="post-media post-cover" href="${escapeAttr(post.url || "#")}" aria-label="阅读 ${escapeAttr(post.title || "文章")}"><img src="${escapeAttr(post.cover)}" alt="${escapeAttr(post.title || "文章封面")}" loading="lazy"></a>`
+        : `<div class="post-media ${escapeAttr(post.mediaClass || "media-code")}" aria-hidden="true"></div>`}
       <div class="post-body">
         <div class="meta">
-          <span>${post.category || "文章"}</span>
-          <time datetime="${post.date || ""}">${formatDate(post.date)}</time>
+          <span>${escapeHtml(post.category || "文章")}</span>
+          <time datetime="${escapeAttr(post.date || "")}">${formatDate(post.date)}</time>
         </div>
-        <h3><a href="${post.url || "#"}">${post.title || ""}</a></h3>
-        <p>${post.summary || ""}</p>
+        <h3><a href="${escapeAttr(post.url || "#")}">${escapeHtml(post.title || "")}</a></h3>
+        <p>${escapeHtml(post.summary || "")}</p>
       </div>
     </article>
+  `).join("");
+};
+
+const renderPostTools = () => {
+  const categoryContainer = document.querySelector("[data-post-categories]");
+  if (!categoryContainer) return;
+
+  const categories = [...new Set(getTopicPosts().map((post) => post.category).filter(Boolean))];
+  const buttons = [
+    { label: "全部", value: "all" },
+    ...categories.map((category) => ({ label: category, value: category }))
+  ];
+
+  if (!categories.includes(activePostCategory)) {
+    activePostCategory = "all";
+  }
+
+  categoryContainer.innerHTML = buttons.map((button) => `
+    <button class="filter-button ${button.value === activePostCategory ? "active" : ""}" type="button" data-post-category="${escapeAttr(button.value)}">
+      ${escapeHtml(button.label)}
+    </button>
   `).join("");
 };
 
@@ -67,10 +157,10 @@ const renderTopics = () => {
   if (!container || !Array.isArray(config.topics)) return;
 
   container.innerHTML = config.topics.map((topic, index) => `
-    <a href="#">
+    <a href="${escapeAttr(topic.url || "#")}">
       <span>${String(index + 1).padStart(2, "0")}</span>
-      <strong>${topic.title || ""}</strong>
-      <em>${topic.description || ""}</em>
+      <strong>${escapeHtml(topic.title || "")}</strong>
+      <em>${escapeHtml(topic.description || "")}</em>
     </a>
   `).join("");
 };
@@ -88,9 +178,9 @@ const renderLinks = () => {
     const detail = rawUrl.replace(/^mailto:/, "");
 
     return `
-      <a class="contact-link" href="${href}"${attrs} aria-label="${link.label || "Link"}: ${detail}">
-        <span class="contact-label">${link.label || "Link"}</span>
-        <span class="contact-detail">${detail}</span>
+      <a class="contact-link" href="${escapeAttr(href)}"${attrs} aria-label="${escapeAttr(link.label || "Link")}: ${escapeAttr(detail)}">
+        <span class="contact-label">${escapeHtml(link.label || "Link")}</span>
+        <span class="contact-detail">${escapeHtml(detail)}</span>
       </a>
     `;
   }).join("");
@@ -109,50 +199,76 @@ const renderPortfolioMedia = (item, index) => {
 
   if (item.type === "video") {
     if (!item.poster) {
-      return `
-        <div class="portfolio-placeholder placeholder-${(index % 4) + 1}" aria-hidden="true">
-          <span>VIDEO</span>
-        </div>
-      `;
+      return placeholder;
     }
 
     return `
-      <img class="portfolio-media" src="${item.poster}" alt="${item.title || "AI 视频封面"}" loading="lazy">
+      <img class="portfolio-media" src="${escapeAttr(item.poster)}" alt="${escapeAttr(item.title || "AI 视频封面")}" loading="lazy">
       <span class="video-badge" aria-hidden="true"></span>
     `;
   }
 
-  return `<img class="portfolio-media" src="${item.src}" alt="${item.alt || item.title || "AI 作品"}" loading="lazy">`;
+  return `<img class="portfolio-media" src="${escapeAttr(item.thumbnail || item.src)}" alt="${escapeAttr(item.alt || item.title || "AI 作品")}" loading="lazy">`;
 };
 
-const escapeAttr = (value = "") => String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+const getVisiblePortfolioItems = (container) => {
+  const limit = container?.dataset.portfolioLimit;
+  const homeLimit = Number(config.homePortfolioLimit || 6);
+  const isHomeGrid = container?.classList.contains("portfolio-grid-home");
+  const filteredItems = activePortfolioFilter === "all"
+    ? portfolioItems
+    : portfolioItems.filter((item) => item.type === activePortfolioFilter);
+
+  if (limit === "all") return filteredItems;
+  return isHomeGrid ? filteredItems.slice(0, homeLimit) : filteredItems.slice(0, homeLimit);
+};
 
 const renderPortfolio = () => {
   const container = document.querySelector("[data-portfolio]");
   if (!container || !Array.isArray(portfolioItems)) return;
-  const limit = container.dataset.portfolioLimit;
-  const homeLimit = Number(config.homePortfolioLimit || 6);
+  const items = getVisiblePortfolioItems(container);
   const isHomeGrid = container.classList.contains("portfolio-grid-home");
-  const filteredItems = activePortfolioFilter === "all"
-    ? portfolioItems
-    : portfolioItems.filter((item) => item.type === activePortfolioFilter);
-  const items = limit === "all" || isHomeGrid ? filteredItems : filteredItems.slice(0, homeLimit);
 
   container.innerHTML = items.map((item, index) => `
-    <article class="portfolio-card">
+    <article class="portfolio-card ${isHomeGrid ? "portfolio-card-visual" : ""}">
       <button class="portfolio-frame" type="button" ${item.src ? "" : "disabled"} data-portfolio-index="${index}" aria-label="预览 ${escapeAttr(item.title || "AI 作品")}">
         ${renderPortfolioMedia(item, index)}
-        ${item.src ? '<span class="portfolio-open">点击预览</span>' : ""}
+        ${item.src && !isHomeGrid ? '<span class="portfolio-open">点击预览</span>' : ""}
       </button>
+      ${isHomeGrid ? "" : `<div class="portfolio-body">
+        <div class="portfolio-meta">
+          <span>${escapeHtml(item.category || (item.type === "video" ? "AI Video" : "AI Image"))}</span>
+          <span>${escapeHtml(item.year || "")}</span>
+        </div>
+        <h3>${escapeHtml(item.title || "未命名作品")}</h3>
+        <p>${escapeHtml(item.description || "后续补充创作说明。")}</p>
+      </div>`}
     </article>
   `).join("");
 
+  if (isHomeGrid) {
+    container.style.height = "";
+    container.classList.remove("is-clipped");
+    return;
+  }
+
   requestAnimationFrame(() => layoutPortfolioGrid(container));
   container.querySelectorAll("img").forEach((image) => {
+    const applyAspectRatio = () => {
+      const frame = image.closest(".portfolio-frame");
+      if (frame && image.naturalWidth && image.naturalHeight) {
+        frame.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
+      }
+    };
+
     if (image.complete) {
+      applyAspectRatio();
       requestAnimationFrame(() => layoutPortfolioGrid(container));
     } else {
-      image.addEventListener("load", () => layoutPortfolioGrid(container), { once: true });
+      image.addEventListener("load", () => {
+        applyAspectRatio();
+        layoutPortfolioGrid(container);
+      }, { once: true });
     }
   });
 };
@@ -184,12 +300,10 @@ const layoutPortfolioGrid = (container = document.querySelector("[data-portfolio
   });
 
   const contentHeight = Math.max(0, ...columnHeights) - gap;
-  const fixedHomeHeight = Number.parseInt(styles.getPropertyValue("--portfolio-home-height"), 10) || 520;
-  const isHomeGrid = container.classList.contains("portfolio-grid-home");
-  const visibleHeight = isHomeGrid ? Math.min(contentHeight, fixedHomeHeight) : contentHeight;
+  const visibleHeight = contentHeight;
 
   container.style.height = `${Math.max(0, visibleHeight)}px`;
-  container.classList.toggle("is-clipped", isHomeGrid && contentHeight > fixedHomeHeight);
+  container.classList.remove("is-clipped");
 };
 
 const closePortfolioViewer = () => {
@@ -226,8 +340,9 @@ const openPortfolioViewer = (item) => {
       <button class="viewer-close" type="button" aria-label="关闭预览">×</button>
       <div class="viewer-stage">${media}</div>
       <figcaption class="viewer-caption">
-        <strong>${item.title || ""}</strong>
-        <p>${item.description || ""}</p>
+        <span>${escapeHtml(item.category || "")}${item.year ? ` / ${escapeHtml(item.year)}` : ""}</span>
+        <strong>${escapeHtml(item.title || "")}</strong>
+        <p>${escapeHtml(item.description || "")}</p>
       </figcaption>
     </figure>
   `;
@@ -241,13 +356,7 @@ document.addEventListener("click", (event) => {
   const trigger = event.target.closest("[data-portfolio-index]");
   if (trigger) {
     const container = trigger.closest("[data-portfolio]");
-    const limit = container?.dataset.portfolioLimit;
-    const homeLimit = Number(config.homePortfolioLimit || 6);
-    const isHomeGrid = container?.classList.contains("portfolio-grid-home");
-    const filteredItems = activePortfolioFilter === "all"
-      ? portfolioItems
-      : portfolioItems.filter((item) => item.type === activePortfolioFilter);
-    const items = limit === "all" || isHomeGrid ? filteredItems : filteredItems.slice(0, homeLimit);
+    const items = getVisiblePortfolioItems(container);
     const item = items[Number(trigger.dataset.portfolioIndex)];
     openPortfolioViewer(item);
     return;
@@ -275,8 +384,44 @@ document.addEventListener("click", (event) => {
   renderPortfolio();
 });
 
+document.addEventListener("click", (event) => {
+  const categoryButton = event.target.closest("[data-post-category]");
+  if (!categoryButton) return;
+
+  activePostCategory = categoryButton.dataset.postCategory || "all";
+  document.querySelectorAll("[data-post-category]").forEach((button) => {
+    button.classList.toggle("active", button === categoryButton);
+  });
+  renderPosts();
+});
+
+document.querySelector("[data-post-search]")?.addEventListener("input", () => {
+  renderPosts();
+});
+
+document.addEventListener("click", async (event) => {
+  const copyButton = event.target.closest("[data-copy-code]");
+  if (!copyButton) return;
+
+  const code = copyButton.closest(".article-code")?.querySelector("code")?.innerText || "";
+  if (!code) return;
+
+  try {
+    await navigator.clipboard.writeText(code);
+    copyButton.textContent = "已复制";
+    window.setTimeout(() => {
+      copyButton.textContent = "复制";
+    }, 1400);
+  } catch {
+    copyButton.textContent = "复制失败";
+    window.setTimeout(() => {
+      copyButton.textContent = "复制";
+    }, 1400);
+  }
+});
+
 window.addEventListener("resize", () => {
-  document.querySelectorAll("[data-portfolio]").forEach((container) => layoutPortfolioGrid(container));
+  document.querySelectorAll("[data-portfolio]:not(.portfolio-grid-home)").forEach((container) => layoutPortfolioGrid(container));
 });
 
 updateMeta();
@@ -293,6 +438,7 @@ setText("[data-intro-description]", config.intro?.description);
 setText("[data-profile-initial]", config.about?.initial);
 setText("[data-about-title]", config.about?.title);
 setText("[data-about-description]", config.about?.description);
+renderPostTools();
 renderPosts();
 renderPortfolio();
 renderTopics();

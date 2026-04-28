@@ -3,22 +3,27 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="博客文章归档，记录技术、项目复盘、阅读和长期思考。">
+    <meta name="description" content="TudouCode 的文章归档，记录技术实践、项目复盘、阅读摘录和长期思考。">
     <meta name="theme-color" content="#336b63">
+    <link rel="canonical" href="https://tudoucode.github.io/posts.html">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="全部文章">
-    <meta property="og:description" content="博客文章归档。">
-    <title>全部文章</title>
+    <meta property="og:site_name" content="TudouCode">
+    <meta property="og:title" content="全部文章 - TudouCode">
+    <meta property="og:description" content="文章归档，记录技术实践、项目复盘和长期学习。">
+    <meta property="og:url" content="https://tudoucode.github.io/posts.html">
+    <meta property="og:image" content="https://tudoucode.github.io/assets/portfolio/thumbs/6e89711f-d6c0-459c-9954-929687dfe61c.jpg">
+    <title>全部文章 - TudouCode</title>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Blog","name":"全部文章 - TudouCode","url":"https://tudoucode.github.io/posts.html","description":"TudouCode 的文章归档，记录技术实践、项目复盘、阅读摘录和长期思考。"}</script>
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body data-page="posts">
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="回到首页">
-        <span class="brand-mark" data-site-initial>N</span>
-        <span class="brand-text" data-site-name>Notes</span>
+        <span class="brand-mark" data-site-initial>TC</span>
+        <span class="brand-text" data-site-name>TudouCode</span>
       </a>
       <nav class="site-nav" aria-label="主导航">
-        <a href="posts.html">文章</a>
+        <a href="posts.html" aria-current="page">文章</a>
         <a href="portfolio.html">作品</a>
         <a href="index.html#topics">专题</a>
         <a href="index.html#about">关于</a>
@@ -31,22 +36,30 @@
     <main>
       <section class="page-hero" aria-labelledby="posts-page-title">
         <p class="eyebrow">Writing Archive</p>
-        <h1 id="posts-page-title">全部文章</h1>
-        <p>这里集中放置博客文章、技术笔记、项目复盘、阅读摘录和阶段性思考。</p>
+        <h1 id="posts-page-title" data-posts-title>全部文章</h1>
+        <p data-posts-description>这里集中放置技术笔记、项目复盘、阅读摘录和阶段性思考。后续文章会逐步替换当前占位链接。</p>
       </section>
 
       <section class="section posts-page-section" aria-label="全部文章列表">
+        <div class="archive-tools" data-post-tools>
+          <label class="archive-search">
+            <span>搜索文章</span>
+            <input type="search" data-post-search placeholder="输入标题、摘要或分类" autocomplete="off">
+          </label>
+          <div class="archive-filters" data-post-categories aria-label="文章分类"></div>
+        </div>
         <div class="post-grid post-grid-wide" data-posts data-post-limit="all"></div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>© <span id="year"></span> <span data-footer-name>Notes</span>. Static personal site.</p>
+      <p>© <span id="year"></span> <span data-footer-name>TudouCode</span>. Static personal site.</p>
       <a href="index.html">回到首页</a>
     </footer>
 
     <script src="site.config.js"></script>
     <script src="portfolio.auto.js"></script>
+    <script src="search-index.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tudoucode.github.io/sitemap.xml

@@ -18,6 +18,15 @@ window.autoPortfolio = [
         "alt":  "978D2410 37B1 43E8 B7e6 451F141b6c9a"
     },
     {
+        "title":  "Chatgpt Image 2026年4月27日 10 32 10",
+        "type":  "image",
+        "category":  "AI Image",
+        "year":  "2026",
+        "src":  "assets/portfolio/ChatGPT Image 2026年4月27日 10_32_10.png",
+        "description":  "Edit this description in site.config.js if needed.",
+        "alt":  "Chatgpt Image 2026年4月27日 10 32 10"
+    },
+    {
         "title":  "Ddf544e0 66Fc 4005 81D5 40Fc2be9ac3d",
         "type":  "image",
         "category":  "AI Image",

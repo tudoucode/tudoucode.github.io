@@ -3,20 +3,25 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="一个记录技术、生活、AI 创作与长期思考的个人网站。">
+    <meta name="description" content="TudouCode 的个人网站，记录 Web 开发、AI 创作、项目复盘和长期学习。">
     <meta name="theme-color" content="#336b63">
+    <link rel="canonical" href="https://tudoucode.github.io/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="个人网站">
-    <meta property="og:description" content="记录博客文章与 AI 作品集。">
-    <title>个人网站</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23336b63'/%3E%3Ctext x='32' y='40' font-size='30' text-anchor='middle' fill='%23fffaf1' font-family='Arial'%3EN%3C/text%3E%3C/svg%3E">
+    <meta property="og:site_name" content="TudouCode">
+    <meta property="og:title" content="TudouCode">
+    <meta property="og:description" content="记录 Web 开发、AI 创作、项目复盘和长期学习。">
+    <meta property="og:url" content="https://tudoucode.github.io/">
+    <meta property="og:image" content="https://tudoucode.github.io/assets/portfolio/thumbs/6e89711f-d6c0-459c-9954-929687dfe61c.jpg">
+    <title>TudouCode</title>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"TudouCode","url":"https://tudoucode.github.io/","description":"TudouCode 的个人网站，记录 Web 开发、AI 创作、项目复盘和长期学习。"}</script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23336b63'/%3E%3Ctext x='32' y='40' font-size='24' text-anchor='middle' fill='%23fffaf1' font-family='Arial'%3ETC%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
+  <body data-page="home">
     <header class="site-header">
       <a class="brand" href="#" aria-label="回到首页">
-        <span class="brand-mark" data-site-initial>N</span>
-        <span class="brand-text" data-site-name>Notes</span>
+        <span class="brand-mark" data-site-initial>TC</span>
+        <span class="brand-text" data-site-name>TudouCode</span>
       </a>
       <nav class="site-nav" aria-label="主导航">
         <a href="#posts">文章</a>
@@ -33,25 +38,25 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-art" aria-hidden="true">
           <div class="grain"></div>
-          <div class="paper paper-one"></div>
-          <div class="paper paper-two"></div>
-          <div class="paper paper-three"></div>
+          <img class="hero-piece hero-piece-main" src="assets/portfolio/thumbs/6e89711f-d6c0-459c-9954-929687dfe61c.jpg" alt="">
+          <img class="hero-piece hero-piece-top" src="assets/portfolio/thumbs/Gemini_Generated_Image_cpg01dcpg01dcpg0.jpg" alt="">
+          <img class="hero-piece hero-piece-bottom" src="assets/portfolio/thumbs/f6685aea-cc53-4e4d-ab1b-499c023761af.jpg" alt="">
         </div>
         <div class="hero-content">
           <p class="eyebrow" data-hero-kicker>Personal Blog & AI Portfolio</p>
-          <h1 id="hero-title" data-hero-title>把日常观察、技术实践和 AI 创作写下来。</h1>
+          <h1 id="hero-title" data-hero-title>我是TudouCode，记录 Web 开发与 AI 创作。</h1>
           <p class="hero-copy" data-hero-description>
-            这里是我的个人网站，用来展示博客文章、AI 图片、视频和创作实验。
+            这里沉淀我的技术实践、项目复盘、AI 图片与视频实验，也记录长期学习中值得复用的方法和判断。
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#portfolio">查看作品</a>
             <a class="button secondary" href="#posts">阅读文章</a>
           </div>
         </div>
-        <aside class="hero-note" aria-label="最新动态">
+        <aside class="hero-note" aria-label="最近更新">
           <span>最近更新</span>
-          <strong data-latest-title>个人网站准备上线</strong>
-          <p data-latest-summary>静态页面已经搭好，接下来可以继续补充作品、文章、域名和部署。</p>
+          <strong data-latest-title>AI 作品集已整理上线</strong>
+          <p data-latest-summary>已集中展示图片、视频和视觉实验，后续会补充每个作品的创作背景与工具流程。</p>
         </aside>
       </section>
 
@@ -61,7 +66,7 @@
           <h2 data-intro-title>把内容和作品放在一个长期可维护的地方。</h2>
         </div>
         <p data-intro-description>
-          这个网站适合发布技术笔记、项目复盘、读书摘录，也适合展示 AI 生成图片、视频、短片和创作过程。
+          我希望这个网站不只是展示页，而是一个持续更新的个人档案：记录做过的项目、试过的工具、踩过的坑，以及 AI 创作从想法到成品的过程。
         </p>
       </section>
 
@@ -69,7 +74,7 @@
         <div class="section-heading">
           <div>
             <p class="section-kicker">AI Portfolio</p>
-            <h2 id="portfolio-title">AI 作品集</h2>
+            <h2 id="portfolio-title">精选 AI 作品</h2>
           </div>
           <a class="text-link" href="portfolio.html">全部作品</a>
         </div>
@@ -99,13 +104,13 @@
 
       <section class="section about" id="about" aria-labelledby="about-title">
         <div class="profile-photo" aria-hidden="true">
-          <span data-profile-initial>你</span>
+          <span data-profile-initial>TC</span>
         </div>
         <div>
           <p class="section-kicker">About</p>
-          <h2 id="about-title" data-about-title>你好，我是这个网站的作者。</h2>
+          <h2 id="about-title" data-about-title>你好，我是 TudouCode。</h2>
           <p data-about-description>
-            这里可以替换成你的个人简介：你正在做什么、关注什么主题、希望通过这个网站沉淀哪些内容。
+            我关注 Web 开发、AI 创作和个人知识管理。这个网站用于整理公开作品、记录学习过程，并把零散经验沉淀成可以反复查看的资料。
           </p>
           <div class="contact-row" data-links></div>
         </div>
@@ -113,7 +118,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>© <span id="year"></span> <span data-footer-name>Notes</span>. Static personal site.</p>
+      <p>© <span id="year"></span> <span data-footer-name>TudouCode</span>. Static personal site.</p>
       <a href="#">回到顶部</a>
     </footer>
 
