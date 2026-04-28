@@ -1,0 +1,28 @@
+---
+import type { PostItem } from "@/data/site";
+
+const { post, featured = false } = Astro.props as { post: PostItem; featured?: boolean };
+const dateLabel = post.date?.replaceAll("-", ".") || "";
+const searchText = [post.title, post.category, post.summary, post.date, (post as PostItem & { searchContent?: string }).searchContent]
+  .filter(Boolean)
+  .join(" ")
+  .toLowerCase();
+---
+
+<article class:list={["post-card", { featured }]} data-post-card data-category={post.category} data-search={searchText}>
+  {post.cover ? (
+    <a class="post-media post-cover" href={post.url} aria-label={`阅读 ${post.title}`}>
+      <img src={post.cover} alt={post.title} loading="lazy" />
+    </a>
+  ) : (
+    <div class:list={["post-media", post.mediaClass || "media-code"]} aria-hidden="true"></div>
+  )}
+  <div class="post-body">
+    <div class="meta">
+      <span>{post.category}</span>
+      <time datetime={post.date}>{dateLabel}</time>
+    </div>
+    <h3><a href={post.url}>{post.title}</a></h3>
+    <p>{post.summary}</p>
+  </div>
+</article>
